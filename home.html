@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scorely — Artilharia</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="backdrop" aria-hidden="true"></div>
+
+    <div class="shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">Scorely</span>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-value" id="statPlayers">0</span>
+                    <span class="stat-label">Jogadores</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="statGoals">0</span>
+                    <span class="stat-label">Gols</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="hero">
+            <p class="eyebrow">Artilharia</p>
+            <h1 id="championship" contenteditable="true" spellcheck="false" title="Clique para editar">Nome do campeonato</h1>
+        </section>
+
+        <main class="layout">
+            <aside class="panel form-panel">
+                <h2 class="panel-title" id="formTitle">Novo jogador</h2>
+
+                <form id="playerForm" autocomplete="off">
+                    <label class="photo-picker" for="photoInput">
+                        <span class="photo-preview" id="photoPreview">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5Z"/></svg>
+                        </span>
+                        <span class="photo-text">
+                            <strong>Foto do jogador</strong>
+                            <small>Clique para escolher</small>
+                        </span>
+                        <input type="file" id="photoInput" accept="image/*" hidden>
+                    </label>
+
+                    <div class="field">
+                        <label for="nameInput">Nome</label>
+                        <input type="text" id="nameInput" maxlength="40" placeholder="Ex.: Gabriel Silva" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="teamInput">Time</label>
+                        <div class="select-wrap">
+                            <select id="teamInput" required>
+                                <option value="" disabled selected>Selecione o time</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="goalsInput">Gols iniciais</label>
+                        <input type="number" id="goalsInput" min="0" max="999" value="1">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Adicionar</button>
+                        <button type="button" class="btn btn-ghost" id="cancelEdit" hidden>Cancelar</button>
+                    </div>
+                </form>
+
+                <div class="backup">
+                    <h3 class="backup-title">Backup</h3>
+                    <p class="backup-text">Salve uma cópia dos dados em arquivo para não perder nada.</p>
+                    <div class="backup-actions">
+                        <button type="button" class="btn btn-ghost btn-sm" id="exportBtn">Exportar</button>
+                        <button type="button" class="btn btn-ghost btn-sm" id="importBtn">Importar</button>
+                        <input type="file" id="importInput" accept=".json,application/json" hidden>
+                    </div>
+                    <p class="backup-status" id="backupStatus" role="status"></p>
+                </div>
+            </aside>
+
+            <section class="panel ranking-panel">
+                <div class="ranking-head">
+                    <h2 class="panel-title">Classificação</h2>
+                    <div class="ranking-filters">
+                        <div class="select-wrap filter-select-wrap">
+                            <select id="rankingTeamFilter" class="team-filter-select" aria-label="Filtrar classificação por time">
+                                <option value="">Todos os times</option>
+                            </select>
+                        </div>
+                        <input type="search" id="searchInput" class="search" placeholder="Buscar jogador ou time">
+                    </div>
+                </div>
+
+                <div class="table-labels" aria-hidden="true">
+                    <span>#</span>
+                    <span>Jogador</span>
+                    <span class="right">Gols</span>
+                </div>
+
+                <ol class="ranking" id="ranking"></ol>
+
+                <div class="empty" id="emptyState">
+                    <p>Nenhum jogador cadastrado.</p>
+                    <span>Adicione o primeiro pelo formulário ao lado.</span>
+                </div>
+            </section>
+
+            <aside class="panel status-panel" aria-label="Situação dos jogadores">
+                <datalist id="knownPlayersList"></datalist>
+
+                <section class="status-section yellow" data-status="yellow">
+                    <header class="status-head">
+                        <div class="status-title-wrap">
+                            <span class="status-badge yellow-card" aria-hidden="true"></span>
+                            <h2 class="panel-title">Amarelados</h2>
+                            <span class="status-count" data-count="yellow">0</span>
+                        </div>
+                        <div class="status-head-right">
+                            <span class="status-unit-label">Cartões</span>
+                            <button type="button" class="icon-btn status-toggle" data-toggle="yellow" aria-label="Adicionar amarelado" title="Adicionar">+</button>
+                        </div>
+                    </header>
+
+                    <div class="status-filter-bar">
+                        <div class="select-wrap">
+                            <select class="status-filter-select" data-filter="yellow" aria-label="Filtrar amarelados por time">
+                                <option value="">Todos os times</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <form class="status-form" data-form="yellow" autocomplete="off" hidden>
+                        <input type="text" name="name" maxlength="40" placeholder="Jogador" list="knownPlayersList" required>
+                        <div class="status-form-row">
+                            <div class="select-wrap">
+                                <select name="team" class="status-team-select" required>
+                                    <option value="" disabled selected>Time</option>
+                                </select>
+                            </div>
+                            <input type="number" name="amount" min="1" max="99" value="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Incluir</button>
+                    </form>
+
+                    <ul class="status-list" data-list="yellow"></ul>
+                    <p class="status-empty" data-empty="yellow">Nenhum jogador amarelado.</p>
+                </section>
+
+                <section class="status-section suspended" data-status="suspended">
+                    <header class="status-head">
+                        <div class="status-title-wrap">
+                            <span class="status-badge red-card" aria-hidden="true"></span>
+                            <h2 class="panel-title">Suspensos</h2>
+                            <span class="status-count" data-count="suspended">0</span>
+                        </div>
+                        <div class="status-head-right">
+                            <span class="status-unit-label">Jogos</span>
+                            <button type="button" class="icon-btn status-toggle" data-toggle="suspended" aria-label="Adicionar suspenso" title="Adicionar">+</button>
+                        </div>
+                    </header>
+
+                    <div class="status-filter-bar">
+                        <div class="select-wrap">
+                            <select class="status-filter-select" data-filter="suspended" aria-label="Filtrar suspensos por time">
+                                <option value="">Todos os times</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <form class="status-form" data-form="suspended" autocomplete="off" hidden>
+                        <input type="text" name="name" maxlength="40" placeholder="Jogador" list="knownPlayersList" required>
+                        <div class="status-form-row">
+                            <div class="select-wrap">
+                                <select name="team" class="status-team-select" required>
+                                    <option value="" disabled selected>Time</option>
+                                </select>
+                            </div>
+                            <input type="number" name="amount" min="1" max="99" value="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Incluir</button>
+                    </form>
+
+                    <ul class="status-list" data-list="suspended"></ul>
+                    <p class="status-empty" data-empty="suspended">Nenhum jogador suspenso.</p>
+                </section>
+
+                <section class="status-section injured" data-status="injured">
+                    <header class="status-head">
+                        <div class="status-title-wrap">
+                            <span class="status-badge medical-cross" aria-hidden="true"></span>
+                            <h2 class="panel-title">Lesionados</h2>
+                            <span class="status-count" data-count="injured">0</span>
+                        </div>
+                        <div class="status-head-right">
+                            <span class="status-unit-label">Jogos fora</span>
+                            <button type="button" class="icon-btn status-toggle" data-toggle="injured" aria-label="Adicionar lesionado" title="Adicionar">+</button>
+                        </div>
+                    </header>
+
+                    <div class="status-filter-bar">
+                        <div class="select-wrap">
+                            <select class="status-filter-select" data-filter="injured" aria-label="Filtrar lesionados por time">
+                                <option value="">Todos os times</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <form class="status-form" data-form="injured" autocomplete="off" hidden>
+                        <input type="text" name="name" maxlength="40" placeholder="Jogador" list="knownPlayersList" required>
+                        <div class="status-form-row">
+                            <div class="select-wrap">
+                                <select name="team" class="status-team-select" required>
+                                    <option value="" disabled selected>Time</option>
+                                </select>
+                            </div>
+                            <input type="number" name="amount" min="1" max="99" value="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Incluir</button>
+                    </form>
+
+                    <ul class="status-list" data-list="injured"></ul>
+                    <p class="status-empty" data-empty="injured">Nenhum jogador lesionado.</p>
+                </section>
+            </aside>
+        </main>
+
+        <footer class="footer">Os dados ficam salvos neste navegador.</footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
